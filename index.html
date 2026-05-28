@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Personal JEE & KCET Preparation Tracker - Track your Physics, Chemistry, and Mathematics progress with chapter-wise analytics and study planner.">
+    <title>JEE & KCET Prep Tracker | Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-grid"></div>
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <div class="bg-glow bg-glow-3"></div>
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <span class="logo-icon">⚛</span>
+                <span class="logo-text">JEE Tracker</span>
+            </div>
+            <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#dashboard" class="nav-link active" data-section="dashboard"><span class="nav-icon">📊</span><span class="nav-label">Dashboard</span></a></li>
+            <li><a href="#physics" class="nav-link" data-section="physics"><span class="nav-icon">⚡</span><span class="nav-label">Physics</span></a></li>
+            <li><a href="#chemistry" class="nav-link" data-section="chemistry"><span class="nav-icon">🧪</span><span class="nav-label">Chemistry</span></a></li>
+            <li><a href="#mathematics" class="nav-link" data-section="mathematics"><span class="nav-icon">📐</span><span class="nav-label">Mathematics</span></a></li>
+            <li><a href="#planner" class="nav-link" data-section="planner"><span class="nav-icon">📅</span><span class="nav-label">Study Planner</span></a></li>
+            <li><a href="#analytics" class="nav-link" data-section="analytics"><span class="nav-icon">📈</span><span class="nav-label">Analytics</span></a></li>
+            <li><a href="#resources" class="nav-link" data-section="resources"><span class="nav-icon">📚</span><span class="nav-label">Resources</span></a></li>
+        </ul>
+        <div class="sidebar-footer">
+            <div class="motivation-quote" id="motivationQuote">
+                <p>"Success is the sum of small efforts, repeated day in and day out."</p>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="top-bar-left">
+                <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">☰</button>
+                <h1 class="page-title" id="pageTitle">Dashboard</h1>
+            </div>
+            <div class="top-bar-right">
+                <div class="streak-badge" id="streakBadge">
+                    <span class="streak-fire">🔥</span>
+                    <span class="streak-count" id="streakCount">0</span>
+                    <span class="streak-label">day streak</span>
+                </div>
+                <div class="theme-toggle" id="themeToggle" title="Toggle theme">🌙</div>
+            </div>
+        </header>
+
+        <!-- ==================== DASHBOARD SECTION ==================== -->
+        <section class="content-section active" id="section-dashboard">
+            <!-- Countdown Timer -->
+            <div class="countdown-container">
+                <h2 class="countdown-title">⏰ JEE Main 2026 Countdown</h2>
+                <div class="countdown-grid">
+                    <div class="countdown-item">
+                        <span class="countdown-value" id="countdown-days">000</span>
+                        <span class="countdown-label">Days</span>
+                    </div>
+                    <div class="countdown-separator">:</div>
+                    <div class="countdown-item">
+                        <span class="countdown-value" id="countdown-hours">00</span>
+                        <span class="countdown-label">Hours</span>
+                    </div>
+                    <div class="countdown-separator">:</div>
+                    <div class="countdown-item">
+                        <span class="countdown-value" id="countdown-minutes">00</span>
+                        <span class="countdown-label">Minutes</span>
+                    </div>
+                    <div class="countdown-separator">:</div>
+                    <div class="countdown-item">
+                        <span class="countdown-value" id="countdown-seconds">00</span>
+                        <span class="countdown-label">Seconds</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card stat-physics">
+                    <div class="stat-icon">⚡</div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="stat-physics-progress">0%</span>
+                        <span class="stat-label">Physics</span>
+                    </div>
+                    <div class="stat-bar"><div class="stat-bar-fill" id="bar-physics" style="width:0%"></div></div>
+                </div>
+                <div class="stat-card stat-chemistry">
+                    <div class="stat-icon">🧪</div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="stat-chemistry-progress">0%</span>
+                        <span class="stat-label">Chemistry</span>
+                    </div>
+                    <div class="stat-bar"><div class="stat-bar-fill" id="bar-chemistry" style="width:0%"></div></div>
+                </div>
+                <div class="stat-card stat-math">
+                    <div class="stat-icon">📐</div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="stat-math-progress">0%</span>
+                        <span class="stat-label">Mathematics</span>
+                    </div>
+                    <div class="stat-bar"><div class="stat-bar-fill" id="bar-math" style="width:0%"></div></div>
+                </div>
+                <div class="stat-card stat-overall">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="stat-overall-progress">0%</span>
+                        <span class="stat-label">Overall</span>
+                    </div>
+                    <div class="stat-bar"><div class="stat-bar-fill" id="bar-overall" style="width:0%"></div></div>
+                </div>
+            </div>
+
+            <!-- Study Metrics Overview -->
+            <div class="glass-card study-metrics-card">
+                <div class="study-metrics-header">
+                    <h3>📋 Study Metrics & Pace</h3>
+                    <span class="metrics-tag">86 Chapters • 3 Subjects • Category C</span>
+                </div>
+                <div id="studyMetricsContent"></div>
+            </div>
+
+            <!-- JEE High-Yield Topics -->
+            <div class="glass-card high-yield-card">
+                <div class="high-yield-header">
+                    <h3>🎯 JEE High-Yield Topics (2024 & 2025)</h3>
+                    <div class="hyt-tabs">
+                        <button class="hyt-tab active" data-subject="physics">⚡ Physics</button>
+                        <button class="hyt-tab" data-subject="chemistry">🧪 Chemistry</button>
+                        <button class="hyt-tab" data-subject="mathematics">📐 Maths</button>
+                    </div>
+                </div>
+                <div id="highYieldContent"></div>
+            </div>
+
+            <!-- Strategy Cards -->
+            <div class="glass-card strategy-overview-card">
+                <h3>🗺️ Strategy at a Glance</h3>
+                <div id="strategyContent"></div>
+            </div>
+
+            <!-- Today's Focus + Activity -->
+            <div class="dashboard-grid">
+                <div class="glass-card today-focus">
+                    <h3>🎯 Today's Focus</h3>
+                    <div class="focus-input-group">
+                        <input type="text" id="focusInput" placeholder="What are you focusing on today?" class="focus-input">
+                        <button id="addFocusBtn" class="btn-primary btn-small">Add</button>
+                    </div>
+                    <ul class="focus-list" id="focusList"></ul>
+                </div>
+                <div class="glass-card recent-activity">
+                    <h3>📝 Recent Activity</h3>
+                    <div class="activity-feed" id="activityFeed">
+                        <p class="empty-state">No recent activity. Start tracking chapters!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="glass-card quick-actions">
+                <h3>⚡ Quick Actions</h3>
+                <div class="action-buttons">
+                    <button class="action-btn" onclick="navigateTo('physics')">📖 Study Physics</button>
+                    <button class="action-btn" onclick="navigateTo('chemistry')">🔬 Study Chemistry</button>
+                    <button class="action-btn" onclick="navigateTo('mathematics')">🧮 Study Maths</button>
+                    <button class="action-btn" onclick="navigateTo('planner')">📋 Plan Today</button>
+                    <button class="action-btn" id="resetAllBtn">🔄 Reset All Data</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== PHYSICS SECTION ==================== -->
+        <section class="content-section" id="section-physics">
+            <div class="section-header">
+                <h2>⚡ Physics Chapters</h2>
+                <div class="section-stats">
+                    <span class="badge badge-green" id="physics-completed-count">0 completed</span>
+                    <span class="badge badge-blue" id="physics-total-count">0 total</span>
+                </div>
+            </div>
+            <p class="section-note">30 Chapters • 18 Detailed + 12 One-shot • ~77 Study Days</p>
+
+            <!-- Heavy Lifters -->
+            <div class="chapter-group">
+                <div class="group-header heavy-lifters">
+                    <h3>🔥 Heavy Lifters <span class="weight-badge">~45% Weightage</span></h3>
+                    <p class="group-desc">Big bomb bada dhamaka — These chapters carry the maximum marks!</p>
+                </div>
+                <div class="chapters-grid" id="physics-heavy-lifters"></div>
+            </div>
+
+            <!-- Smart Lifters -->
+            <div class="chapter-group">
+                <div class="group-header smart-lifters">
+                    <h3>💡 Smart Lifters <span class="weight-badge">~26% Weightage</span></h3>
+                    <p class="group-desc">Small bomb bada dhamaka — High scoring with smart preparation!</p>
+                </div>
+                <div class="chapters-grid" id="physics-smart-lifters"></div>
+            </div>
+
+            <!-- Other Topics -->
+            <div class="chapter-group">
+                <div class="group-header other-topics">
+                    <h3>📘 Other Important Topics <span class="weight-badge">~29% Weightage</span></h3>
+                    <p class="group-desc">Don't ignore these — every mark counts!</p>
+                </div>
+                <div class="chapters-grid" id="physics-other"></div>
+            </div>
+        </section>
+
+        <!-- ==================== CHEMISTRY SECTION ==================== -->
+        <section class="content-section" id="section-chemistry">
+            <div class="section-header">
+                <h2>🧪 Chemistry Chapters</h2>
+                <div class="section-stats">
+                    <span class="badge badge-green" id="chemistry-completed-count">0 completed</span>
+                    <span class="badge badge-blue" id="chemistry-total-count">0 total</span>
+                </div>
+            </div>
+            <p class="section-note">30 Chapters • 17 Detailed + 13 One-shot • ~76 Study Days</p>
+
+            <!-- Physical Chemistry -->
+            <div class="chapter-group">
+                <div class="group-header physical-chem">
+                    <h3>⚗️ Physical Chemistry (P.C.)</h3>
+                    <p class="group-desc">Calculation-heavy — practice numerical problems daily!</p>
+                </div>
+                <div class="chapters-grid" id="chemistry-physical"></div>
+            </div>
+
+            <!-- Organic Chemistry -->
+            <div class="chapter-group">
+                <div class="group-header organic-chem">
+                    <h3>🧬 Organic Chemistry (O.C.)</h3>
+                    <p class="group-desc">Master mechanisms and named reactions for guaranteed marks!</p>
+                </div>
+                <div class="chapters-grid" id="chemistry-organic"></div>
+            </div>
+
+            <!-- Inorganic Chemistry -->
+            <div class="chapter-group">
+                <div class="group-header inorganic-chem">
+                    <h3>💎 Inorganic Chemistry (I.O.C.)</h3>
+                    <p class="group-desc">Memory-based — revise regularly for retention!</p>
+                </div>
+                <div class="chapters-grid" id="chemistry-inorganic"></div>
+            </div>
+        </section>
+
+        <!-- ==================== MATHEMATICS SECTION ==================== -->
+        <section class="content-section" id="section-mathematics">
+            <div class="section-header">
+                <h2>📐 Mathematics Chapters</h2>
+                <div class="section-stats">
+                    <span class="badge badge-green" id="math-completed-count">0 completed</span>
+                    <span class="badge badge-blue" id="math-total-count">0 total</span>
+                </div>
+            </div>
+            <p class="section-note">26 Chapters • 14 Detailed + 12 One-shot • ~65.5 Study Days • ~9 Questions per Shift</p>
+
+            <!-- High Weightage -->
+            <div class="chapter-group">
+                <div class="group-header math-high">
+                    <h3>🏆 High Weightage Chapters <span class="weight-badge">Top Priority</span></h3>
+                    <p class="group-desc">These appeared most frequently in JEE 2024 & 2025!</p>
+                </div>
+                <div class="chapters-grid" id="math-high"></div>
+            </div>
+
+            <!-- Medium Weightage -->
+            <div class="chapter-group">
+                <div class="group-header math-medium">
+                    <h3>📊 Medium Weightage Chapters</h3>
+                    <p class="group-desc">Consistent scoring chapters — don't skip these!</p>
+                </div>
+                <div class="chapters-grid" id="math-medium"></div>
+            </div>
+
+            <!-- Other Math -->
+            <div class="chapter-group">
+                <div class="group-header math-other">
+                    <h3>📝 Other Chapters</h3>
+                    <p class="group-desc">Cover basics and revise for KCET overlap!</p>
+                </div>
+                <div class="chapters-grid" id="math-other"></div>
+            </div>
+        </section>
+
+        <!-- ==================== STUDY PLANNER SECTION ==================== -->
+        <section class="content-section" id="section-planner">
+            <div class="section-header">
+                <h2>📅 Study Planner</h2>
+            </div>
+
+            <!-- Pomodoro Timer -->
+            <div class="glass-card pomodoro-card">
+                <h3>🍅 Pomodoro Timer</h3>
+                <div class="pomodoro-display">
+                    <div class="pomodoro-ring">
+                        <svg viewBox="0 0 200 200">
+                            <circle cx="100" cy="100" r="90" class="pomodoro-bg-ring"/>
+                            <circle cx="100" cy="100" r="90" class="pomodoro-progress-ring" id="pomodoroRing"/>
+                        </svg>
+                        <div class="pomodoro-time" id="pomodoroTime">25:00</div>
+                    </div>
+                </div>
+                <div class="pomodoro-controls">
+                    <button class="btn-primary" id="pomodoroStart">▶ Start</button>
+                    <button class="btn-secondary" id="pomodoroPause">⏸ Pause</button>
+                    <button class="btn-secondary" id="pomodoroReset">🔄 Reset</button>
+                </div>
+                <div class="pomodoro-presets">
+                    <button class="preset-btn active" data-minutes="25">25 min</button>
+                    <button class="preset-btn" data-minutes="45">45 min</button>
+                    <button class="preset-btn" data-minutes="60">60 min</button>
+                    <button class="preset-btn" data-minutes="5">5 min break</button>
+                </div>
+                <div class="pomodoro-stats">
+                    <span>🍅 Sessions today: <strong id="pomodoroCount">0</strong></span>
+                    <span>⏱ Total focus: <strong id="totalFocusTime">0h 0m</strong></span>
+                </div>
+            </div>
+
+            <!-- Weekly Schedule -->
+            <div class="glass-card weekly-schedule">
+                <h3>📋 Weekly Schedule</h3>
+                <div class="schedule-grid">
+                    <div class="schedule-day" data-day="monday">
+                        <h4>Monday</h4>
+                        <div class="schedule-slots" id="schedule-monday"></div>
+                        <button class="add-slot-btn" data-day="monday">+ Add</button>
+                    </div>
+                    <div class="schedule-day" data-day="tuesday">
+                        <h4>Tuesday</h4>
+                        <div class="schedule-slots" id="schedule-tuesday"></div>
+                        <button class="add-slot-btn" data-day="tuesday">+ Add</button>
+                    </div>
+                    <div class="schedule-day" data-day="wednesday">
+                        <h4>Wednesday</h4>
+                        <div class="schedule-slots" id="schedule-wednesday"></div>
+                        <button class="add-slot-btn" data-day="wednesday">+ Add</button>
+                    </div>
+                    <div class="schedule-day" data-day="thursday">
+                        <h4>Thursday</h4>
+                        <div class="schedule-slots" id="schedule-thursday"></div>
+                        <button class="add-slot-btn" data-day="thursday">+ Add</button>
+                    </div>
+                    <div class="schedule-day" data-day="friday">
+                        <h4>Friday</h4>
+                        <div class="schedule-slots" id="schedule-friday"></div>
+                        <button class="add-slot-btn" data-day="friday">+ Add</button>
+                    </div>
+                    <div class="schedule-day" data-day="saturday">
+                        <h4>Saturday</h4>
+                        <div class="schedule-slots" id="schedule-saturday"></div>
+                        <button class="add-slot-btn" data-day="saturday">+ Add</button>
+                    </div>
+                    <div class="schedule-day" data-day="sunday">
+                        <h4>Sunday</h4>
+                        <div class="schedule-slots" id="schedule-sunday"></div>
+                        <button class="add-slot-btn" data-day="sunday">+ Add</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes -->
+            <div class="glass-card notes-section">
+                <h3>📝 Quick Notes</h3>
+                <textarea id="quickNotes" class="notes-textarea" placeholder="Jot down formulas, concepts, or anything important..."></textarea>
+                <button class="btn-primary btn-small" id="saveNotesBtn">💾 Save Notes</button>
+            </div>
+        </section>
+
+        <!-- ==================== ANALYTICS SECTION ==================== -->
+        <section class="content-section" id="section-analytics">
+            <div class="section-header">
+                <h2>📈 Analytics & Progress</h2>
+            </div>
+
+            <div class="analytics-grid">
+                <div class="glass-card analytics-card">
+                    <h3>📊 Subject-wise Progress</h3>
+                    <div class="chart-container" id="subjectChart">
+                        <div class="donut-chart-container">
+                            <div class="donut-chart" id="physicsDonut">
+                                <svg viewBox="0 0 120 120">
+                                    <circle cx="60" cy="60" r="50" class="donut-bg"/>
+                                    <circle cx="60" cy="60" r="50" class="donut-fill physics-fill" id="physicsDonutFill"/>
+                                </svg>
+                                <div class="donut-label">
+                                    <span class="donut-value" id="physicsDonutValue">0%</span>
+                                    <span class="donut-name">Physics</span>
+                                </div>
+                            </div>
+                            <div class="donut-chart" id="chemDonut">
+                                <svg viewBox="0 0 120 120">
+                                    <circle cx="60" cy="60" r="50" class="donut-bg"/>
+                                    <circle cx="60" cy="60" r="50" class="donut-fill chem-fill" id="chemDonutFill"/>
+                                </svg>
+                                <div class="donut-label">
+                                    <span class="donut-value" id="chemDonutValue">0%</span>
+                                    <span class="donut-name">Chemistry</span>
+                                </div>
+                            </div>
+                            <div class="donut-chart" id="mathDonut">
+                                <svg viewBox="0 0 120 120">
+                                    <circle cx="60" cy="60" r="50" class="donut-bg"/>
+                                    <circle cx="60" cy="60" r="50" class="donut-fill math-fill" id="mathDonutFill"/>
+                                </svg>
+                                <div class="donut-label">
+                                    <span class="donut-value" id="mathDonutValue">0%</span>
+                                    <span class="donut-name">Maths</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card analytics-card">
+                    <h3>📅 Study Streak Calendar</h3>
+                    <div class="streak-calendar" id="streakCalendar"></div>
+                </div>
+
+                <div class="glass-card analytics-card full-width">
+                    <h3>🏆 Achievements</h3>
+                    <div class="achievements-grid" id="achievementsGrid"></div>
+                </div>
+
+                <div class="glass-card analytics-card full-width">
+                    <h3>📊 Chapter Completion Breakdown</h3>
+                    <div class="breakdown-bars" id="breakdownBars"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== RESOURCES SECTION ==================== -->
+        <section class="content-section" id="section-resources">
+            <div class="section-header">
+                <h2>📚 Resources & Links</h2>
+            </div>
+
+            <div class="resources-grid">
+                <div class="glass-card resource-card">
+                    <h3>🎥 YouTube Channels</h3>
+                    <ul class="resource-list">
+                        <li><a href="https://www.youtube.com/@PhysicsWallah" target="_blank" rel="noopener">Physics Wallah</a></li>
+                        <li><a href="https://www.youtube.com/@MohitTyagi" target="_blank" rel="noopener">Mohit Tyagi (Maths)</a></li>
+                        <li><a href="https://www.youtube.com/@UnacademyJEE" target="_blank" rel="noopener">Unacademy JEE</a></li>
+                        <li><a href="https://www.youtube.com/@TheOrganicChemistryTutor" target="_blank" rel="noopener">Organic Chemistry Tutor</a></li>
+                    </ul>
+                </div>
+                <div class="glass-card resource-card">
+                    <h3>📝 Practice Platforms</h3>
+                    <ul class="resource-list">
+                        <li><a href="https://www.embibe.com" target="_blank" rel="noopener">Embibe - Free Practice</a></li>
+                        <li><a href="https://www.mathongo.com" target="_blank" rel="noopener">MathonGo - PYQs</a></li>
+                        <li><a href="https://jeemain.nta.nic.in" target="_blank" rel="noopener">NTA Official Site</a></li>
+                        <li><a href="https://www.allen.ac.in" target="_blank" rel="noopener">Allen - Test Series</a></li>
+                    </ul>
+                </div>
+                <div class="glass-card resource-card">
+                    <h3>📖 KCET Specific</h3>
+                    <ul class="resource-list">
+                        <li><a href="https://kea.kar.nic.in" target="_blank" rel="noopener">KEA Official Website</a></li>
+                        <li><a href="https://www.careers360.com/exams/kcet" target="_blank" rel="noopener">KCET on Careers360</a></li>
+                        <li>NCERT Textbooks (Class 11 & 12)</li>
+                        <li>Previous Year KCET Papers</li>
+                    </ul>
+                </div>
+                <div class="glass-card resource-card">
+                    <h3>🧠 Formula Sheets</h3>
+                    <div class="formula-add-group">
+                        <input type="text" id="formulaInput" placeholder="Add a formula or concept..." class="focus-input">
+                        <button class="btn-primary btn-small" id="addFormulaBtn">Add</button>
+                    </div>
+                    <ul class="resource-list formula-list" id="formulaList"></ul>
+                </div>
+            </div>
+
+            <!-- Important Dates -->
+            <div class="glass-card important-dates">
+                <h3>📅 Important Dates (Tentative 2026)</h3>
+                <div class="dates-grid">
+                    <div class="date-item">
+                        <span class="date-month">Jan</span>
+                        <span class="date-event">JEE Main Session 1</span>
+                    </div>
+                    <div class="date-item">
+                        <span class="date-month">Apr</span>
+                        <span class="date-event">JEE Main Session 2</span>
+                    </div>
+                    <div class="date-item">
+                        <span class="date-month">Apr</span>
+                        <span class="date-event">KCET Exam</span>
+                    </div>
+                    <div class="date-item">
+                        <span class="date-month">Jun</span>
+                        <span class="date-event">JEE Advanced</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal for Schedule -->
+    <div class="modal-overlay" id="scheduleModal">
+        <div class="modal glass-card">
+            <h3>Add Study Slot</h3>
+            <div class="modal-form">
+                <select id="modalSubject" class="modal-input">
+                    <option value="physics">⚡ Physics</option>
+                    <option value="chemistry">🧪 Chemistry</option>
+                    <option value="mathematics">📐 Mathematics</option>
+                    <option value="revision">🔄 Revision</option>
+                    <option value="test">📝 Mock Test</option>
+                </select>
+                <input type="text" id="modalTopic" class="modal-input" placeholder="Topic / Chapter">
+                <input type="time" id="modalTime" class="modal-input">
+                <div class="modal-actions">
+                    <button class="btn-primary" id="modalSave">Save</button>
+                    <button class="btn-secondary" id="modalCancel">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
