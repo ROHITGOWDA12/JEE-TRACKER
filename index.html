@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Personal JEE & KCET Preparation Tracker - Track your Physics, Chemistry, and Mathematics progress with chapter-wise analytics and study planner.">
-    <title>JEE & KCET Prep Tracker | Dashboard</title>
+    <meta name="description" content="Personal JEE 2027 & KCET Preparation Tracker - Track your Physics, Chemistry, and Mathematics progress with chapter-wise analytics, study planner, and persistent progress saving.">
+    <title>JEE 2027 & KCET Prep Tracker | Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -66,7 +66,7 @@
         <section class="content-section active" id="section-dashboard">
             <!-- Countdown Timer -->
             <div class="countdown-container">
-                <h2 class="countdown-title">⏰ JEE Main 2026 Countdown</h2>
+                <h2 class="countdown-title">⏰ JEE Main 2027 Countdown</h2>
                 <div class="countdown-grid">
                     <div class="countdown-item">
                         <span class="countdown-value" id="countdown-days">000</span>
@@ -130,7 +130,7 @@
             <div class="glass-card study-metrics-card">
                 <div class="study-metrics-header">
                     <h3>📋 Study Metrics & Pace</h3>
-                    <span class="metrics-tag">86 Chapters • 3 Subjects • Category C</span>
+                    <span class="metrics-tag">86 Chapters • 3 Subjects • JEE 2027</span>
                 </div>
                 <div id="studyMetricsContent"></div>
             </div>
@@ -172,6 +172,35 @@
                 </div>
             </div>
 
+            <!-- Daily Study Hours Logger -->
+            <div class="glass-card daily-log-card">
+                <div class="daily-log-header">
+                    <h3>⏱️ Daily Study Log</h3>
+                    <span class="daily-log-date" id="dailyLogDate"></span>
+                </div>
+                <div class="daily-log-input-row">
+                    <div class="log-input-group">
+                        <label for="logSubject">Subject</label>
+                        <select id="logSubject" class="modal-input">
+                            <option value="physics">⚡ Physics</option>
+                            <option value="chemistry">🧪 Chemistry</option>
+                            <option value="mathematics">📐 Mathematics</option>
+                        </select>
+                    </div>
+                    <div class="log-input-group">
+                        <label for="logHours">Hours</label>
+                        <input type="number" id="logHours" class="modal-input" min="0" max="16" step="0.5" placeholder="2">
+                    </div>
+                    <div class="log-input-group">
+                        <label for="logTopic">Topic (optional)</label>
+                        <input type="text" id="logTopic" class="modal-input" placeholder="e.g. Thermodynamics">
+                    </div>
+                    <button class="btn-primary btn-small" id="addStudyLogBtn" style="align-self: flex-end;">+ Log</button>
+                </div>
+                <div class="daily-log-summary" id="dailyLogSummary"></div>
+                <div class="daily-log-entries" id="dailyLogEntries"></div>
+            </div>
+
             <!-- Quick Actions -->
             <div class="glass-card quick-actions">
                 <h3>⚡ Quick Actions</h3>
@@ -180,6 +209,9 @@
                     <button class="action-btn" onclick="navigateTo('chemistry')">🔬 Study Chemistry</button>
                     <button class="action-btn" onclick="navigateTo('mathematics')">🧮 Study Maths</button>
                     <button class="action-btn" onclick="navigateTo('planner')">📋 Plan Today</button>
+                    <button class="action-btn" id="exportDataBtn">💾 Export Progress</button>
+                    <button class="action-btn" id="importDataBtn">📂 Import Progress</button>
+                    <input type="file" id="importFileInput" accept=".json" style="display:none">
                     <button class="action-btn" id="resetAllBtn">🔄 Reset All Data</button>
                 </div>
             </div>
@@ -189,9 +221,14 @@
         <section class="content-section" id="section-physics">
             <div class="section-header">
                 <h2>⚡ Physics Chapters</h2>
-                <div class="section-stats">
-                    <span class="badge badge-green" id="physics-completed-count">0 completed</span>
-                    <span class="badge badge-blue" id="physics-total-count">0 total</span>
+                <div class="section-header-right">
+                    <div class="chapter-search-container">
+                        <input type="text" class="chapter-search-input" id="physicsSearch" placeholder="🔍 Search chapters...">
+                    </div>
+                    <div class="section-stats">
+                        <span class="badge badge-green" id="physics-completed-count">0 completed</span>
+                        <span class="badge badge-blue" id="physics-total-count">0 total</span>
+                    </div>
                 </div>
             </div>
             <p class="section-note">30 Chapters • 18 Detailed + 12 One-shot • ~77 Study Days</p>
@@ -228,9 +265,14 @@
         <section class="content-section" id="section-chemistry">
             <div class="section-header">
                 <h2>🧪 Chemistry Chapters</h2>
-                <div class="section-stats">
-                    <span class="badge badge-green" id="chemistry-completed-count">0 completed</span>
-                    <span class="badge badge-blue" id="chemistry-total-count">0 total</span>
+                <div class="section-header-right">
+                    <div class="chapter-search-container">
+                        <input type="text" class="chapter-search-input" id="chemistrySearch" placeholder="🔍 Search chapters...">
+                    </div>
+                    <div class="section-stats">
+                        <span class="badge badge-green" id="chemistry-completed-count">0 completed</span>
+                        <span class="badge badge-blue" id="chemistry-total-count">0 total</span>
+                    </div>
                 </div>
             </div>
             <p class="section-note">30 Chapters • 17 Detailed + 13 One-shot • ~76 Study Days</p>
@@ -267,9 +309,14 @@
         <section class="content-section" id="section-mathematics">
             <div class="section-header">
                 <h2>📐 Mathematics Chapters</h2>
-                <div class="section-stats">
-                    <span class="badge badge-green" id="math-completed-count">0 completed</span>
-                    <span class="badge badge-blue" id="math-total-count">0 total</span>
+                <div class="section-header-right">
+                    <div class="chapter-search-container">
+                        <input type="text" class="chapter-search-input" id="mathSearch" placeholder="🔍 Search chapters...">
+                    </div>
+                    <div class="section-stats">
+                        <span class="badge badge-green" id="math-completed-count">0 completed</span>
+                        <span class="badge badge-blue" id="math-total-count">0 total</span>
+                    </div>
                 </div>
             </div>
             <p class="section-note">26 Chapters • 14 Detailed + 12 One-shot • ~65.5 Study Days • ~9 Questions per Shift</p>
@@ -446,6 +493,11 @@
                     <h3>📊 Chapter Completion Breakdown</h3>
                     <div class="breakdown-bars" id="breakdownBars"></div>
                 </div>
+
+                <div class="glass-card analytics-card full-width">
+                    <h3>📅 Weekly Study Hours</h3>
+                    <div class="weekly-hours-chart" id="weeklyHoursChart"></div>
+                </div>
             </div>
         </section>
 
@@ -495,23 +547,39 @@
 
             <!-- Important Dates -->
             <div class="glass-card important-dates">
-                <h3>📅 Important Dates (Tentative 2026)</h3>
-                <div class="dates-grid">
-                    <div class="date-item">
-                        <span class="date-month">Jan</span>
-                        <span class="date-event">JEE Main Session 1</span>
+                <h3>📅 Important Dates (Tentative 2027)</h3>
+                <div class="dates-timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <span class="timeline-month">Jan 2027</span>
+                            <span class="timeline-event">JEE Main Session 1</span>
+                            <span class="timeline-desc">First attempt — target 99+ percentile</span>
+                        </div>
                     </div>
-                    <div class="date-item">
-                        <span class="date-month">Apr</span>
-                        <span class="date-event">JEE Main Session 2</span>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <span class="timeline-month">Apr 2027</span>
+                            <span class="timeline-event">JEE Main Session 2</span>
+                            <span class="timeline-desc">Second attempt — improve score</span>
+                        </div>
                     </div>
-                    <div class="date-item">
-                        <span class="date-month">Apr</span>
-                        <span class="date-event">KCET Exam</span>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <span class="timeline-month">Apr 2027</span>
+                            <span class="timeline-event">KCET Exam</span>
+                            <span class="timeline-desc">Karnataka state-level entrance</span>
+                        </div>
                     </div>
-                    <div class="date-item">
-                        <span class="date-month">Jun</span>
-                        <span class="date-event">JEE Advanced</span>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <span class="timeline-month">Jun 2027</span>
+                            <span class="timeline-event">JEE Advanced</span>
+                            <span class="timeline-desc">IIT entrance — the ultimate goal 🏆</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -542,6 +610,15 @@
 
     <!-- Toast Notification -->
     <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Save Indicator -->
+    <div class="save-indicator" id="saveIndicator">
+        <span class="save-icon">💾</span>
+        <span class="save-text">Progress Saved</span>
+    </div>
+
+    <!-- Confetti Canvas -->
+    <canvas id="confettiCanvas"></canvas>
 
     <script src="app.js"></script>
 </body>

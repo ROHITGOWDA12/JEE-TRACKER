@@ -1,5 +1,5 @@
 /* ========================================
-   JEE & KCET Preparation Tracker
+   JEE 2027 & KCET Preparation Tracker
    Main Application Logic — Enhanced Edition
    ======================================== */
 
@@ -246,6 +246,7 @@ class AppState {
         this.streak = { count: 0, lastDate: null, calendar: {} };
         this.pomodoroSessions = 0;
         this.totalFocusMinutes = 0;
+        this.studyLog = [];
         this.load();
     }
 
@@ -263,7 +264,7 @@ class AppState {
 
     save() {
         try {
-            localStorage.setItem('jee-tracker-state', JSON.stringify({
+            const data = JSON.stringify({
                 chapterStatus: this.chapterStatus,
                 focusItems: this.focusItems,
                 activities: this.activities,
@@ -273,7 +274,12 @@ class AppState {
                 streak: this.streak,
                 pomodoroSessions: this.pomodoroSessions,
                 totalFocusMinutes: this.totalFocusMinutes,
-            }));
+                studyLog: this.studyLog,
+            });
+            localStorage.setItem('jee-tracker-state', data);
+            // Also save a backup timestamp
+            localStorage.setItem('jee-tracker-last-save', new Date().toISOString());
+            showSaveIndicator();
         } catch (e) {
             console.error('Failed to save state:', e);
         }
@@ -315,6 +321,7 @@ class AppState {
 
     reset() {
         localStorage.removeItem('jee-tracker-state');
+        localStorage.removeItem('jee-tracker-last-save');
         this.chapterStatus = {};
         this.focusItems = [];
         this.activities = [];
@@ -324,6 +331,37 @@ class AppState {
         this.streak = { count: 0, lastDate: null, calendar: {} };
         this.pomodoroSessions = 0;
         this.totalFocusMinutes = 0;
+        this.studyLog = [];
+    }
+
+    exportData() {
+        return JSON.stringify({
+            chapterStatus: this.chapterStatus,
+            focusItems: this.focusItems,
+            activities: this.activities,
+            schedule: this.schedule,
+            notes: this.notes,
+            formulas: this.formulas,
+            streak: this.streak,
+            pomodoroSessions: this.pomodoroSessions,
+            totalFocusMinutes: this.totalFocusMinutes,
+            studyLog: this.studyLog,
+            exportDate: new Date().toISOString(),
+            version: '2.0'
+        }, null, 2);
+    }
+
+    importData(jsonStr) {
+        try {
+            const data = JSON.parse(jsonStr);
+            if (!data.chapterStatus) throw new Error('Invalid data format');
+            Object.assign(this, data);
+            this.save();
+            return true;
+        } catch (e) {
+            console.error('Import failed:', e);
+            return false;
+        }
     }
 }
 
@@ -349,7 +387,20 @@ document.addEventListener('DOMContentLoaded', () => {
     initQuote();
     initResetButton();
     initHighYieldTabs();
+    initStudyLog();
+    initExportImport();
+    initChapterSearch();
     updateAllStats();
+
+    // Auto-save on page unload to prevent data loss
+    window.addEventListener('beforeunload', () => {
+        state.save();
+    });
+
+    // Periodic auto-save every 30 seconds
+    setInterval(() => {
+        state.save();
+    }, 30000);
 });
 
 // ===== NAVIGATION =====
@@ -405,12 +456,13 @@ function navigateTo(section) {
     // Refresh analytics when opening
     if (section === 'analytics') {
         updateAnalytics();
+        renderWeeklyHoursChart();
     }
 }
 
 // ===== COUNTDOWN TIMER =====
 function initCountdown() {
-    // JEE Main 2027 Session 1 - typically late January
+    // JEE Main 2027 Session 1 - typically late January 2027
     const jeeDate = new Date('2027-01-23T09:00:00+05:30');
 
     function updateCountdown() {
@@ -1287,4 +1339,342 @@ function escapeHtml(str) {
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
+}
+
+// ===== SAVE INDICATOR =====
+let saveIndicatorTimeout = null;
+function showSaveIndicator() {
+    const indicator = document.getElementById('saveIndicator');
+    if (!indicator) return;
+    indicator.classList.add('visible');
+    clearTimeout(saveIndicatorTimeout);
+    saveIndicatorTimeout = setTimeout(() => {
+        indicator.classList.remove('visible');
+    }, 2000);
+}
+
+// ===== DAILY STUDY LOG =====
+function initStudyLog() {
+    const addBtn = document.getElementById('addStudyLogBtn');
+    const dateEl = document.getElementById('dailyLogDate');
+
+    if (dateEl) {
+        const today = new Date();
+        dateEl.textContent = today.toLocaleDateString('en-IN', {
+            weekday: 'short', day: 'numeric', month: 'short', year: 'numeric'
+        });
+    }
+
+    if (addBtn) {
+        addBtn.addEventListener('click', addStudyLogEntry);
+    }
+
+    renderStudyLog();
+}
+
+function addStudyLogEntry() {
+    const subject = document.getElementById('logSubject').value;
+    const hours = parseFloat(document.getElementById('logHours').value);
+    const topic = document.getElementById('logTopic').value.trim();
+
+    if (!hours || hours <= 0) {
+        showToast('Please enter valid hours!', 'warning');
+        return;
+    }
+
+    const entry = {
+        id: Date.now(),
+        subject,
+        hours,
+        topic: topic || `${subject.charAt(0).toUpperCase() + subject.slice(1)} study`,
+        date: new Date().toISOString(),
+        dateKey: new Date().toISOString().split('T')[0]
+    };
+
+    state.studyLog.unshift(entry);
+    state.updateStreak();
+    state.save();
+
+    document.getElementById('logHours').value = '';
+    document.getElementById('logTopic').value = '';
+
+    renderStudyLog();
+    updateAllStats();
+    showToast(`Logged ${hours}h of ${subject}! Keep going! 💪`, 'success');
+}
+
+function renderStudyLog() {
+    const summaryEl = document.getElementById('dailyLogSummary');
+    const entriesEl = document.getElementById('dailyLogEntries');
+    if (!summaryEl || !entriesEl) return;
+
+    const today = new Date().toISOString().split('T')[0];
+    const todayLogs = (state.studyLog || []).filter(e => e.dateKey === today);
+
+    const subjectHours = { physics: 0, chemistry: 0, mathematics: 0 };
+    todayLogs.forEach(e => {
+        if (subjectHours[e.subject] !== undefined) {
+            subjectHours[e.subject] += e.hours;
+        }
+    });
+    const totalHours = Object.values(subjectHours).reduce((a, b) => a + b, 0);
+
+    summaryEl.innerHTML = `
+        <div class="log-summary-item log-summary-physics">
+            <span class="log-summary-value">${subjectHours.physics.toFixed(1)}h</span>
+            <span class="log-summary-label">⚡ Physics</span>
+        </div>
+        <div class="log-summary-item log-summary-chemistry">
+            <span class="log-summary-value">${subjectHours.chemistry.toFixed(1)}h</span>
+            <span class="log-summary-label">🧪 Chemistry</span>
+        </div>
+        <div class="log-summary-item log-summary-mathematics">
+            <span class="log-summary-value">${subjectHours.mathematics.toFixed(1)}h</span>
+            <span class="log-summary-label">📐 Maths</span>
+        </div>
+        <div class="log-summary-item log-summary-total">
+            <span class="log-summary-value">${totalHours.toFixed(1)}h</span>
+            <span class="log-summary-label">🎯 Total Today</span>
+        </div>
+    `;
+
+    if (todayLogs.length === 0) {
+        entriesEl.innerHTML = '<p class="empty-state" style="padding:12px">No study hours logged today. Start studying! 📚</p>';
+        return;
+    }
+
+    entriesEl.innerHTML = todayLogs.map(e => {
+        const time = new Date(e.date).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+        return `
+            <div class="log-entry">
+                <div class="log-entry-dot ${e.subject}"></div>
+                <span class="log-entry-info">${escapeHtml(e.topic)} <span style="color:var(--text-muted);font-size:11px;">at ${time}</span></span>
+                <span class="log-entry-hours">${e.hours}h</span>
+                <button class="log-entry-delete" data-id="${e.id}">✕</button>
+            </div>
+        `;
+    }).join('');
+
+    entriesEl.querySelectorAll('.log-entry-delete').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const id = parseInt(e.target.dataset.id);
+            state.studyLog = state.studyLog.filter(l => l.id !== id);
+            state.save();
+            renderStudyLog();
+        });
+    });
+}
+
+// ===== EXPORT / IMPORT =====
+function initExportImport() {
+    const exportBtn = document.getElementById('exportDataBtn');
+    const importBtn = document.getElementById('importDataBtn');
+    const importFile = document.getElementById('importFileInput');
+
+    if (exportBtn) {
+        exportBtn.addEventListener('click', () => {
+            const data = state.exportData();
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `jee-tracker-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('📦 Progress exported successfully!', 'success');
+        });
+    }
+
+    if (importBtn && importFile) {
+        importBtn.addEventListener('click', () => {
+            importFile.click();
+        });
+
+        importFile.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                if (confirm('⚠️ This will replace all current progress with imported data. Continue?')) {
+                    const success = state.importData(evt.target.result);
+                    if (success) {
+                        showToast('✅ Progress imported successfully! Reloading...', 'success');
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        showToast('❌ Failed to import. Invalid file format.', 'warning');
+                    }
+                }
+            };
+            reader.readAsText(file);
+            importFile.value = '';
+        });
+    }
+}
+
+// ===== CHAPTER SEARCH =====
+function initChapterSearch() {
+    const searches = [
+        { inputId: 'physicsSearch', sectionId: 'section-physics' },
+        { inputId: 'chemistrySearch', sectionId: 'section-chemistry' },
+        { inputId: 'mathSearch', sectionId: 'section-mathematics' },
+    ];
+
+    searches.forEach(({ inputId, sectionId }) => {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+
+        input.addEventListener('input', () => {
+            const query = input.value.toLowerCase().trim();
+            const section = document.getElementById(sectionId);
+            if (!section) return;
+
+            const cards = section.querySelectorAll('.chapter-card');
+            cards.forEach(card => {
+                if (!query) {
+                    card.classList.remove('search-hidden');
+                    return;
+                }
+                const text = card.textContent.toLowerCase();
+                if (text.includes(query)) {
+                    card.classList.remove('search-hidden');
+                } else {
+                    card.classList.add('search-hidden');
+                }
+            });
+        });
+    });
+}
+
+// ===== CONFETTI CELEBRATION =====
+function launchConfetti() {
+    const canvas = document.getElementById('confettiCanvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const colors = ['#6366f1', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#22c55e', '#06b6d4', '#f97316'];
+    const particles = [];
+
+    for (let i = 0; i < 150; i++) {
+        particles.push({
+            x: canvas.width / 2 + (Math.random() - 0.5) * 200,
+            y: canvas.height / 2,
+            vx: (Math.random() - 0.5) * 15,
+            vy: Math.random() * -18 - 5,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            size: Math.random() * 8 + 3,
+            rotation: Math.random() * 360,
+            rotSpeed: (Math.random() - 0.5) * 10,
+            gravity: 0.3 + Math.random() * 0.2,
+            opacity: 1
+        });
+    }
+
+    let frame = 0;
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let alive = false;
+
+        particles.forEach(p => {
+            p.x += p.vx;
+            p.vy += p.gravity;
+            p.y += p.vy;
+            p.rotation += p.rotSpeed;
+            p.opacity -= 0.008;
+
+            if (p.opacity > 0 && p.y < canvas.height + 50) {
+                alive = true;
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate((p.rotation * Math.PI) / 180);
+                ctx.globalAlpha = Math.max(0, p.opacity);
+                ctx.fillStyle = p.color;
+                ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+                ctx.restore();
+            }
+        });
+
+        frame++;
+        if (alive && frame < 200) {
+            requestAnimationFrame(animate);
+        } else {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+    }
+
+    animate();
+}
+
+// Enhanced chapter status change to trigger confetti on milestones
+const originalSetChapterStatus = state.setChapterStatus.bind(state);
+state.setChapterStatus = function(id, status) {
+    originalSetChapterStatus(id, status);
+    if (status === 'completed') {
+        const completedCount = Object.values(this.chapterStatus).filter(s => s === 'completed').length;
+        const milestones = [1, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 86];
+        if (milestones.includes(completedCount)) {
+            launchConfetti();
+            if (completedCount === 86) {
+                showToast('🏆🎉 INCREDIBLE! You completed ALL 86 chapters! JEE 2027, here you come!', 'success');
+            } else if (completedCount >= 50) {
+                showToast(`🎉 Amazing! ${completedCount} chapters done! Over halfway there!`, 'success');
+            } else {
+                showToast(`🎉 Milestone! ${completedCount} chapters completed! Keep the momentum!`, 'success');
+            }
+        }
+    }
+};
+
+// ===== WEEKLY HOURS CHART =====
+function renderWeeklyHoursChart() {
+    const container = document.getElementById('weeklyHoursChart');
+    if (!container) return;
+
+    const today = new Date();
+    const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const weekData = [];
+
+    for (let i = 6; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(today.getDate() - i);
+        const dateKey = date.toISOString().split('T')[0];
+        const dayName = dayLabels[date.getDay()];
+        const isToday = i === 0;
+
+        const dayLogs = (state.studyLog || []).filter(e => e.dateKey === dateKey);
+        const hours = { physics: 0, chemistry: 0, mathematics: 0 };
+        dayLogs.forEach(e => {
+            if (hours[e.subject] !== undefined) hours[e.subject] += e.hours;
+        });
+        const total = hours.physics + hours.chemistry + hours.mathematics;
+
+        weekData.push({ dateKey, dayName, hours, total, isToday });
+    }
+
+    const maxHours = Math.max(1, ...weekData.map(d => d.total));
+    const maxHeight = 120;
+
+    container.innerHTML = weekData.map(d => {
+        const phH = d.total > 0 ? Math.max(4, (d.hours.physics / maxHours) * maxHeight) : 0;
+        const chH = d.total > 0 ? Math.max(4, (d.hours.chemistry / maxHours) * maxHeight) : 0;
+        const maH = d.total > 0 ? Math.max(4, (d.hours.mathematics / maxHours) * maxHeight) : 0;
+
+        return `
+            <div class="hours-bar-col">
+                <span class="hours-bar-value">${d.total > 0 ? d.total.toFixed(1) + 'h' : '-'}</span>
+                <div class="hours-bar-stack">
+                    ${d.hours.physics > 0 ? `<div class="hours-bar-segment physics" style="height:${phH}px" title="Physics: ${d.hours.physics}h"></div>` : ''}
+                    ${d.hours.chemistry > 0 ? `<div class="hours-bar-segment chemistry" style="height:${chH}px" title="Chemistry: ${d.hours.chemistry}h"></div>` : ''}
+                    ${d.hours.mathematics > 0 ? `<div class="hours-bar-segment mathematics" style="height:${maH}px" title="Maths: ${d.hours.mathematics}h"></div>` : ''}
+                    ${d.total === 0 ? '<div style="height:4px;width:100%;background:rgba(255,255,255,0.05);border-radius:2px;"></div>' : ''}
+                </div>
+                <span class="hours-bar-label" style="${d.isToday ? 'color:var(--accent-primary);' : ''}">${d.dayName}${d.isToday ? ' ★' : ''}</span>
+            </div>
+        `;
+    }).join('');
 }
