@@ -483,14 +483,7 @@ function initAuth() {
 
     function loginUser(name) {
         localStorage.setItem('jee-tracker-user', name);
-        userNameDisplay.textContent = name;
-        authOverlay.style.opacity = '0';
-        setTimeout(() => {
-            authOverlay.classList.add('hidden');
-            authOverlay.style.opacity = '1';
-            userProfile.style.display = 'flex';
-            showToast(`Welcome back, ${name}!`, 'success');
-        }, 400);
+        window.location.reload();
     }
 }
 
