@@ -39,5 +39,4 @@ This is a front-end only application! There is no complex build step required.
 ## 🤝 Contributing
 Contributions, issues, and feature requests are welcome! Feel free to check the issues page.
 
----
-*Built with ❤️ by a dedicated student, for dedicated students.*
+
