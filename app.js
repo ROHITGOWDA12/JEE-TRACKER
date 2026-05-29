@@ -422,6 +422,8 @@ function initAuth() {
     const userProfile = document.getElementById('userProfile');
     const userNameDisplay = document.getElementById('userNameDisplay');
     const logoutBtn = document.getElementById('logoutBtn');
+    const loginError = document.getElementById('loginError');
+    const signupError = document.getElementById('signupError');
 
     // Check if logged in
     const currentUser = localStorage.getItem('jee-tracker-user');
@@ -443,6 +445,10 @@ function initAuth() {
                 authTabs.forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
                 
+                // Clear errors
+                if(loginError) loginError.classList.remove('visible');
+                if(signupError) signupError.classList.remove('visible');
+                
                 if (tab.dataset.tab === 'login') {
                     loginForm.classList.add('active');
                     signupForm.classList.remove('active');
@@ -454,13 +460,39 @@ function initAuth() {
         });
     }
 
+    // Helper functions for mock DB
+    function getUsersDB() {
+        const db = localStorage.getItem('jee-tracker-users-db');
+        return db ? JSON.parse(db) : {};
+    }
+
+    function saveUsersDB(db) {
+        localStorage.setItem('jee-tracker-users-db', JSON.stringify(db));
+    }
+
+    function showError(element, msg) {
+        if (!element) return;
+        element.textContent = msg;
+        element.classList.add('visible');
+        setTimeout(() => element.classList.remove('visible'), 3000);
+    }
+
     // Login submit
     if(loginForm) {
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const name = email.split('@')[0];
-            loginUser(name);
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            const db = getUsersDB();
+            const userRec = db[email];
+            
+            if (!userRec || userRec.password !== password) {
+                showError(loginError, 'Invalid email or password.');
+                return;
+            }
+            
+            loginUser(userRec.name);
         });
     }
 
@@ -468,7 +500,20 @@ function initAuth() {
     if(signupForm) {
         signupForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const name = document.getElementById('signupName').value;
+            const name = document.getElementById('signupName').value.trim();
+            const email = document.getElementById('signupEmail').value.trim();
+            const password = document.getElementById('signupPassword').value;
+            
+            const db = getUsersDB();
+            if (db[email]) {
+                showError(signupError, 'An account with this email already exists.');
+                return;
+            }
+            
+            // Save to mock DB
+            db[email] = { name, email, password };
+            saveUsersDB(db);
+            
             loginUser(name);
         });
     }

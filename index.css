@@ -2944,6 +2944,30 @@ body {
     margin-bottom: 8px;
 }
 
+.auth-error {
+    color: #ef4444;
+    font-size: 13px;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    padding: 10px;
+    border-radius: var(--border-radius-xs);
+    display: none;
+    margin-bottom: 4px;
+    text-align: center;
+}
+
+.auth-error.visible {
+    display: block;
+    animation: shake 0.4s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    50% { transform: translateX(4px); }
+    75% { transform: translateX(-4px); }
+}
+
 .input-group {
     display: flex;
     flex-direction: column;
