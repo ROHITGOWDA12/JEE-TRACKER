@@ -252,7 +252,12 @@ class AppState {
 
     load() {
         try {
-            const saved = localStorage.getItem('jee-tracker-state');
+            const user = localStorage.getItem('jee-tracker-user') || 'default';
+            let saved = localStorage.getItem(`jee-tracker-state-${user}`);
+            if (!saved) {
+                // Fallback to legacy key
+                saved = localStorage.getItem('jee-tracker-state');
+            }
             if (saved) {
                 const data = JSON.parse(saved);
                 Object.assign(this, data);
@@ -276,10 +281,13 @@ class AppState {
                 totalFocusMinutes: this.totalFocusMinutes,
                 studyLog: this.studyLog,
             });
-            localStorage.setItem('jee-tracker-state', data);
+            const user = localStorage.getItem('jee-tracker-user') || 'default';
+            localStorage.setItem(`jee-tracker-state-${user}`, data);
             // Also save a backup timestamp
-            localStorage.setItem('jee-tracker-last-save', new Date().toISOString());
-            showSaveIndicator();
+            localStorage.setItem(`jee-tracker-last-save-${user}`, new Date().toISOString());
+            if (typeof showSaveIndicator === 'function') {
+                showSaveIndicator();
+            }
         } catch (e) {
             console.error('Failed to save state:', e);
         }
@@ -320,8 +328,9 @@ class AppState {
     }
 
     reset() {
-        localStorage.removeItem('jee-tracker-state');
-        localStorage.removeItem('jee-tracker-last-save');
+        const user = localStorage.getItem('jee-tracker-user') || 'default';
+        localStorage.removeItem(`jee-tracker-state-${user}`);
+        localStorage.removeItem(`jee-tracker-last-save-${user}`);
         this.chapterStatus = {};
         this.focusItems = [];
         this.activities = [];
@@ -369,6 +378,7 @@ class AppState {
 const state = new AppState();
 
 document.addEventListener('DOMContentLoaded', () => {
+    initAuth();
     initNavigation();
     initCountdown();
     renderAllChapters();
@@ -402,6 +412,87 @@ document.addEventListener('DOMContentLoaded', () => {
         state.save();
     }, 30000);
 });
+
+// ===== AUTHENTICATION =====
+function initAuth() {
+    const authOverlay = document.getElementById('authOverlay');
+    const loginForm = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+    const authTabs = document.querySelectorAll('.auth-tab');
+    const userProfile = document.getElementById('userProfile');
+    const userNameDisplay = document.getElementById('userNameDisplay');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    // Check if logged in
+    const currentUser = localStorage.getItem('jee-tracker-user');
+    
+    if (currentUser) {
+        // User is logged in
+        authOverlay.classList.add('hidden');
+        userProfile.style.display = 'flex';
+        userNameDisplay.textContent = currentUser;
+    } else {
+        // Show login
+        authOverlay.classList.remove('hidden');
+    }
+
+    // Tabs toggle
+    if(authTabs.length > 0) {
+        authTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                authTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                if (tab.dataset.tab === 'login') {
+                    loginForm.classList.add('active');
+                    signupForm.classList.remove('active');
+                } else {
+                    signupForm.classList.add('active');
+                    loginForm.classList.remove('active');
+                }
+            });
+        });
+    }
+
+    // Login submit
+    if(loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const name = email.split('@')[0];
+            loginUser(name);
+        });
+    }
+
+    // Signup submit
+    if(signupForm) {
+        signupForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('signupName').value;
+            loginUser(name);
+        });
+    }
+
+    // Logout
+    if(logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('jee-tracker-user');
+            window.location.reload();
+        });
+    }
+
+    function loginUser(name) {
+        localStorage.setItem('jee-tracker-user', name);
+        userNameDisplay.textContent = name;
+        authOverlay.style.opacity = '0';
+        setTimeout(() => {
+            authOverlay.classList.add('hidden');
+            authOverlay.style.opacity = '1';
+            userProfile.style.display = 'flex';
+            showToast(`Welcome back, ${name}!`, 'success');
+        }, 400);
+    }
+}
 
 // ===== NAVIGATION =====
 function initNavigation() {

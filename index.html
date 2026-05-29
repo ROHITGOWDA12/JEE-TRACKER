@@ -28,6 +28,16 @@
                 <span></span><span></span><span></span>
             </button>
         </div>
+
+        <!-- User Profile -->
+        <div class="user-profile" id="userProfile" style="display: none;">
+            <div class="user-avatar">👤</div>
+            <div class="user-info">
+                <span class="user-name" id="userNameDisplay">Student</span>
+                <span class="user-badge pro-badge">PRO</span>
+            </div>
+            <button class="logout-btn" id="logoutBtn" title="Logout">🚪</button>
+        </div>
         <ul class="nav-links">
             <li><a href="#dashboard" class="nav-link active" data-section="dashboard"><span class="nav-icon">📊</span><span class="nav-label">Dashboard</span></a></li>
             <li><a href="#physics" class="nav-link" data-section="physics"><span class="nav-icon">⚡</span><span class="nav-label">Physics</span></a></li>
@@ -619,6 +629,50 @@
 
     <!-- Confetti Canvas -->
     <canvas id="confettiCanvas"></canvas>
+
+    <!-- Authentication Overlay -->
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-container glass-card">
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Login</button>
+                <button class="auth-tab" data-tab="signup">Sign Up</button>
+            </div>
+            
+            <!-- Login Form -->
+            <form class="auth-form active" id="loginForm">
+                <h2>Welcome Back! 👋</h2>
+                <p>Ready to conquer JEE 2027?</p>
+                <div class="input-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" required placeholder="student@jee.com">
+                </div>
+                <div class="input-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn-primary auth-submit">Login</button>
+            </form>
+
+            <!-- Sign Up Form -->
+            <form class="auth-form" id="signupForm">
+                <h2>Start Your Journey 🚀</h2>
+                <p>Create an account to save your progress.</p>
+                <div class="input-group">
+                    <label for="signupName">Full Name</label>
+                    <input type="text" id="signupName" required placeholder="John Doe">
+                </div>
+                <div class="input-group">
+                    <label for="signupEmail">Email</label>
+                    <input type="email" id="signupEmail" required placeholder="student@jee.com">
+                </div>
+                <div class="input-group">
+                    <label for="signupPassword">Password</label>
+                    <input type="password" id="signupPassword" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn-primary auth-submit">Sign Up</button>
+            </form>
+        </div>
+    </div>
 
     <script src="app.js"></script>
 </body>
